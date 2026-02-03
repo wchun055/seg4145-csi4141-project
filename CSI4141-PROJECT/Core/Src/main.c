@@ -51,7 +51,7 @@ TIM_HandleTypeDef htim1;
 osThreadId_t defaultTaskHandle;
 const osThreadAttr_t defaultTask_attributes = {
   .name = "defaultTask",
-  .priority = (osPriority_t) osPriorityNormal,
+  .priority = (osPriority_t) osPriorityLow,
   .stack_size = 128 * 4
 };
 /* Definitions for MotorTask */
@@ -69,14 +69,20 @@ const osThreadAttr_t UI_Task_attributes = {
   .stack_size = 128 * 4
 };
 /* USER CODE BEGIN PV */
+//shared variables
+typedef enum { STOP = 0 , CW = 1 , CCW = 2} MotorState_t;
+volatile MotorState_t Global_MotorState = STOP;
+
+//PWM
+volatile uint32_t Global_PWM_DutyCycle = 0;
 
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_ADC1_Init(void);
 static void MX_TIM1_Init(void);
+static void MX_ADC1_Init(void);
 void StartDefaultTask(void *argument);
 void MotorTask1(void *argument);
 void MyUI_Task(void *argument);
@@ -119,8 +125,8 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_ADC1_Init();
   MX_TIM1_Init();
+  MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -486,10 +492,47 @@ void MotorTask1(void *argument)
 {
   /* USER CODE BEGIN MotorTask1 */
   /* Infinite loop */
+  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+
   for(;;)
   {
-    osDelay(1);
+    MotorState_t state = Global_MotorState;
+    uint32_t speed = (state == STOP) ? 0 : Global_PWM_DutyCycle;
+
+    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, speed);
+
+    if (state == STOP) {
+        // Standby Motor off
+        HAL_GPIO_WritePin(GPIOE, GPIO_PIN_15, GPIO_PIN_RESET);
+
+        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10|GPIO_PIN_11, GPIO_PIN_RESET);
+    }
+    else {
+        // Standby Disable motor on
+        HAL_GPIO_WritePin(GPIOE, GPIO_PIN_15, GPIO_PIN_SET);
+
+        if (state == CW) {
+            //AI1 High ,AI2 Low == CW
+        	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, GPIO_PIN_RESET);
+        	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_11, GPIO_PIN_SET);
+        } else { // CCW
+            // AI1 Low, AI2 High
+            HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, GPIO_PIN_SET);
+            HAL_GPIO_WritePin(GPIOB, GPIO_PIN_11, GPIO_PIN_RESET);
+        }
+    }
+    BSP_LED_Off(LED_RED); BSP_LED_Off(LED_GREEN); BSP_LED_Off(LED_BLUE);
+
+    if (state == STOP) BSP_LED_On(LED_RED);
+    else if (state == CW) BSP_LED_On(LED_GREEN);
+    else BSP_LED_On(LED_BLUE);
+
+    osDelay(20);
+
+
   }
+
+
   /* USER CODE END MotorTask1 */
 }
 
@@ -504,9 +547,48 @@ void MyUI_Task(void *argument)
 {
   /* USER CODE BEGIN MyUI_Task */
   /* Infinite loop */
+  static uint32_t lastBtnState = GPIO_PIN_RESET;
+  uint32_t currentBtnState;
+  int buzzerTimer = 0;
+
+  /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+    // READING Potentiometer
+    HAL_ADC_Start(&hadc1);
+    if (HAL_ADC_PollForConversion(&hadc1, 10) == HAL_OK) {
+        uint32_t rawADC = HAL_ADC_GetValue(&hadc1);
+
+
+        Global_PWM_DutyCycle = rawADC * 16;
+    }
+
+    //button state selection
+    currentBtnState = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13);
+
+
+    if (currentBtnState == GPIO_PIN_SET && lastBtnState == GPIO_PIN_RESET) {
+        // Change State: STOP -> CW -> CCW -> STOP
+        if (Global_MotorState == STOP) Global_MotorState = CW;
+        else if (Global_MotorState == CW) Global_MotorState = CCW;
+        else Global_MotorState = STOP;
+
+        // Start Buzzer Beep
+        buzzerTimer = 2;
+    }
+    lastBtnState = currentBtnState;
+
+    //buzzer on button
+    if (buzzerTimer > 0) {
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET); // Beep ON
+        buzzerTimer--;
+    } else {
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET); // Beep OFF
+    }
+
+    // --- TASK PERIOD ---
+    // Run every 50ms (Lower Priority, sufficient for UI)
+    osDelay(50);
   }
   /* USER CODE END MyUI_Task */
 }
