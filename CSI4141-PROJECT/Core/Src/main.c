@@ -547,8 +547,8 @@ void MyUI_Task(void *argument)
 {
   /* USER CODE BEGIN MyUI_Task */
   /* Infinite loop */
-  static uint32_t lastBtnState = GPIO_PIN_RESET;
-  uint32_t currentBtnState;
+  static uint32_t lastState = GPIO_PIN_RESET;
+  uint32_t currentState;
   int buzzerTimer = 0;
 
   /* Infinite loop */
@@ -564,10 +564,10 @@ void MyUI_Task(void *argument)
     }
 
     //button state selection
-    currentBtnState = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13);
+    currentState = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13);
 
 
-    if (currentBtnState == GPIO_PIN_SET && lastBtnState == GPIO_PIN_RESET) {
+    if (currentState == GPIO_PIN_SET && lastState == GPIO_PIN_RESET) {
         // Change State: STOP -> CW -> CCW -> STOP
         if (Global_MotorState == STOP) Global_MotorState = CW;
         else if (Global_MotorState == CW) Global_MotorState = CCW;
@@ -576,7 +576,7 @@ void MyUI_Task(void *argument)
         // Start Buzzer Beep
         buzzerTimer = 2;
     }
-    lastBtnState = currentBtnState;
+    lastState = currentState;
 
     //buzzer on button
     if (buzzerTimer > 0) {
