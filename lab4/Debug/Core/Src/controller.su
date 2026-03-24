@@ -1,0 +1,8 @@
+../Core/Src/controller.c:37:6:Controller_Init	4	static
+../Core/Src/controller.c:48:6:Controller_SetTarget	16	static
+../Core/Src/controller.c:66:10:Controller_GetTarget	4	static
+../Core/Src/controller.c:78:10:Controller_Update	32	static
+../Core/Src/controller.c:134:17:Controller_GetState	4	static
+../Core/Src/controller.c:142:6:Controller_ResetIntegral	4	static
+../Core/Src/controller.c:150:6:Controller_SetConfig	16	static
+../Core/Src/controller.c:160:6:Controller_HasConverged	4	static

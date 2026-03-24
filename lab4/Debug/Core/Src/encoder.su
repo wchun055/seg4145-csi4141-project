@@ -1,0 +1,7 @@
+../Core/Src/encoder.c:25:6:Encoder_Init	4	static
+../Core/Src/encoder.c:42:6:Encoder_HandleChannelA_IRQ	4	static
+../Core/Src/encoder.c:56:6:Encoder_HandleChannelB_IRQ	4	static
+../Core/Src/encoder.c:69:10:Encoder_GetSpeedRPM	4	static
+../Core/Src/encoder.c:79:10:Encoder_GetPulseCount	4	static
+../Core/Src/encoder.c:89:6:Encoder_ResetCounter	4	static
+../Core/Src/encoder.c:107:6:Encoder_Update	24	static

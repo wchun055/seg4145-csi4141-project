@@ -1,0 +1,5 @@
+../Core/Src/buzzer.c:36:6:Buzzer_Init	8	static
+../Core/Src/buzzer.c:51:6:Buzzer_BeepPattern	16	static
+../Core/Src/buzzer.c:67:6:Buzzer_IsActive	4	static
+../Core/Src/buzzer.c:75:6:Buzzer_Stop	8	static
+../Core/Src/buzzer.c:89:6:Buzzer_Update	8	static
