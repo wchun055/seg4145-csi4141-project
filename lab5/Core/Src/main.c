@@ -868,7 +868,7 @@ void StartMotorTask(void *argument) {
         }
 
         if (active.state == CW || active.state == CCW) {
-            uint16_t targetRPM = active.duty_percent * 3;  // 0-100 -> 0-300 RPM
+            uint16_t targetRPM = active.duty_percent * 42 / 10;  // 0-100 -> 0-420 RPM
             int16_t error = (int16_t)targetRPM - (int16_t)measuredRPM;
             error_integral += error;
             int16_t control = (int16_t)(kp * error + 0.1f * error_integral);
@@ -948,7 +948,7 @@ void StartControlTask(void *argument) {
                     cmd.state = state;
                     cmd.duty_percent = (state == STOP) ? 0U : duty;
                     (void)xQueueOverwrite(motorCmdQueue, &cmd);
-                    uint16_t targetRPM = cmd.duty_percent * 3;
+                    uint16_t targetRPM = cmd.duty_percent * 42 / 10;
                     Display_UpdateDisplay(state, targetRPM, measuredRPM);
                     Buzzer_Beep();
                     printf("[TOUCH] Poll command -> %s\r\n", MotorStateStr(state));
@@ -1054,7 +1054,7 @@ void StartControlTask(void *argument) {
             }
 
             MotorState displayState = matchedApplied ? applied.state : state;
-            uint16_t targetRPM = cmd.duty_percent * 3; // 0-100 -> 0-300
+            uint16_t targetRPM = cmd.duty_percent * 42 / 10; // 0-100 -> 0-420
             Display_UpdateDisplay(displayState, targetRPM, measuredRPM);
             Buzzer_Beep();
         }
