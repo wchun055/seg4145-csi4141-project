@@ -107,7 +107,7 @@ void Control_ProcessEvent(void)
     TickType_t waitUntil = xTaskGetTickCount() + pdMS_TO_TICKS(100); 
 
     if (xQueueReceive(motorAppliedQueue, &applied, waitUntil) == pdPASS && applied.state == state) {
-      uint16_t targetRPM = duty * 3;
+      uint16_t targetRPM = duty * 42 / 10;
       uint16_t measuredRPM = Encoder_GetRPM();
       Display_Update(state, targetRPM, measuredRPM);
     }
