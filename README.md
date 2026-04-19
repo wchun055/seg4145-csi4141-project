@@ -5,8 +5,8 @@
 
 - Lab 2 work -> *CSI4141-Project* project folder.
 - Lab 3 work -> *freeRTOS_first* project folder.
-- Lab 4 work -> *lab 4* project folder.
-- Lab 5 work -> *lab 5* project folder.
+- Lab 4 work -> *lab4* project folder.
+- Lab 5 work -> *lab5* project folder.
 
 - Lab report images/videos in *report-content* folder. (Separated by lab, each folder is zipped.)
 
