@@ -1,7 +1,9 @@
 # SEG4145 - CSI 4141 Lab Project
 ## Group 21
 
-**Currently on lab 5.**
+**Lab / Project Complete**
+
+(The project is between lab 2 - 5.)
 
 - Lab 2 work -> *CSI4141-Project* project folder.
 - Lab 3 work -> *freeRTOS_first* project folder.
